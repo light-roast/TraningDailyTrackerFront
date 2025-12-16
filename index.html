@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Training Daily Tracker - Home</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div>
+                    <h1>🏋️ Training Daily Tracker</h1>
+                    <p style="color: var(--text-secondary); font-size: 0.875rem;">Track your weekly training progress</p>
+                </div>
+                <div>
+                    <span class="week-badge">Week <span id="currentWeek">1</span></span>
+                    <a href="login.html" class="btn btn-primary" style="margin-left: 1rem;">Login</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+        <!-- Loading Indicator -->
+        <div id="loadingIndicator" class="hidden">
+            <div style="text-align: center; padding: 2rem;">
+                <div class="loading loading-large"></div>
+                <p style="margin-top: 1rem; color: var(--text-secondary);">Loading exercises...</p>
+            </div>
+        </div>
+
+        <!-- Error Message -->
+        <div id="errorMessage" class="message message-error hidden"></div>
+
+        <!-- Weekly Schedule -->
+        <div id="weeklySchedule" class="weekly-schedule">
+            <!-- Days will be inserted here by JavaScript -->
+        </div>
+
+        <!-- Week Navigation -->
+        <div class="week-navigation">
+            <button id="prevWeekBtn" class="btn btn-secondary">← Previous Week</button>
+            <button id="nextWeekBtn" class="btn btn-secondary">Next Week →</button>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/home.js"></script>
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Training Daily Tracker</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="admin-header">
+                <h1>🏋️ Admin Dashboard</h1>
+                <button onclick="logout()" class="btn btn-danger">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+        <!-- Messages -->
+        <div id="successMessage" class="message message-success hidden"></div>
+        <div id="errorMessage" class="message message-error hidden"></div>
+
+        <!-- Exercise Form -->
+        <div class="form-section">
+            <h2 id="formTitle">Add New Exercise</h2>
+            <form id="exerciseForm">
+                <input type="hidden" id="exerciseId" value="">
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="exerciseName">Exercise Name *</label>
+                        <input 
+                            type="text" 
+                            id="exerciseName" 
+                            name="name" 
+                            required 
+                            placeholder="e.g., Bench Press"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="exerciseWeight">Weight (kg) *</label>
+                        <input 
+                            type="number" 
+                            id="exerciseWeight" 
+                            name="weight" 
+                            required 
+                            min="0" 
+                            step="0.5"
+                            placeholder="e.g., 80"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="exerciseMaxReps">Max Reps *</label>
+                        <input 
+                            type="number" 
+                            id="exerciseMaxReps" 
+                            name="maxReps" 
+                            required 
+                            min="1"
+                            placeholder="e.g., 10"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="exerciseMuscle">Muscle Group *</label>
+                        <select id="exerciseMuscle" name="muscleId" required>
+                            <option value="">Select muscle group</option>
+                            <option value="1">Pecho (Chest)</option>
+                            <option value="2">Pierna (Legs)</option>
+                            <option value="3">Hombro (Shoulders)</option>
+                            <option value="4">Bíceps</option>
+                            <option value="5">Espalda (Back)</option>
+                            <option value="6">Tríceps</option>
+                            <option value="7">Abs</option>
+                            <option value="8">Traps</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" id="cancelBtn" class="btn btn-secondary hidden">Cancel</button>
+                    <button type="submit" id="submitBtn" class="btn btn-success">
+                        <span id="submitBtnText">Add Exercise</span>
+                        <span id="submitBtnLoading" class="loading hidden"></span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Exercises Table -->
+        <div class="card">
+            <div class="card-header">
+                <h2>All Exercises</h2>
+            </div>
+
+            <div id="loadingIndicator" class="hidden">
+                <div style="text-align: center; padding: 2rem;">
+                    <div class="loading loading-large"></div>
+                    <p style="margin-top: 1rem; color: var(--text-secondary);">Loading exercises...</p>
+                </div>
+            </div>
+
+            <div id="tableContainer" class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Weight (kg)</th>
+                            <th>Max Reps</th>
+                            <th>Muscle Group</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="exercisesTableBody">
+                        <!-- Rows will be inserted here by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Confirm Delete</h3>
+            </div>
+            <p>Are you sure you want to delete this exercise? This action cannot be undone.</p>
+            <div class="modal-actions">
+                <button onclick="closeDeleteModal()" class="btn btn-secondary">Cancel</button>
+                <button onclick="confirmDelete()" class="btn btn-danger">
+                    <span id="deleteBtnText">Delete</span>
+                    <span id="deleteBtnLoading" class="loading hidden"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>
