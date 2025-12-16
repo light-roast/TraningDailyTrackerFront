@@ -1,16 +1,5 @@
 // Admin page logic
-
-// Muscle group mapping
-const MUSCLE_GROUPS = {
-    1: 'Pecho',
-    2: 'Pierna',
-    3: 'Hombro',
-    4: 'Bíceps',
-    5: 'Espalda',
-    6: 'Tríceps',
-    7: 'Abs',
-    8: 'Traps'
-};
+// Constants are loaded from constants.js
 
 let exercises = [];
 let editingExerciseId = null;
