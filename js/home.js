@@ -156,7 +156,7 @@ function createExerciseElement(exercise) {
     const exerciseDetails = document.createElement('div');
     exerciseDetails.className = 'exercise-details';
     exerciseDetails.innerHTML = `
-        Weight: ${exercise.weight} kg | Max Reps: ${exercise.maxReps}
+        Weight: ${exercise.weight} lb or plates | Max Reps: ${exercise.maxReps}
     `;
 
     exerciseItem.appendChild(exerciseName);
