@@ -95,7 +95,7 @@ const WEEKLY_SCHEDULES = {
         'Jueves': [1, 5],       // Pecho + Espalda
         'Viernes': [3],         // Hombro
         'Sábado': [2],          // Pierna
-        'Domingo': [7]          // Abs
+        'Domingo': [8]          // Traps
     },
     9: {
         'Lunes': [3],           // Hombro
