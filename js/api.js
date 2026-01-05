@@ -1,5 +1,5 @@
 // API Base URL
-const API_BASE_URL = 'https://trainingdailytracker.azurewebsites.net/api';
+const API_BASE_URL = 'http://localhost:5269/api';
 
 // Get authentication token from localStorage
 function getAuthToken() {
@@ -227,6 +227,148 @@ async function previousWeek() {
         return true;
     } catch (error) {
         console.error('Previous week error:', error);
+        throw error;
+    }
+}
+
+// Weekly Schedule APIs
+async function getAllWeeklySchedules() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/WeeklySchedule`);
+        
+        if (!response.ok) {
+            throw new Error('Failed to fetch weekly schedules');
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Get weekly schedules error:', error);
+        throw error;
+    }
+}
+
+async function getWeeklySchedule(weekNumber) {
+    try {
+        const token = getAuthToken();
+        if (!token) {
+            throw new Error('No authentication token found');
+        }
+
+        const response = await fetch(`${API_BASE_URL}/WeeklySchedule/${weekNumber}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.status === 401) {
+            throw new Error('Unauthorized - Please login again');
+        }
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch weekly schedule');
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Get weekly schedule error:', error);
+        throw error;
+    }
+}
+
+async function createWeeklySchedule(weeklySchedule) {
+    try {
+        const token = getAuthToken();
+        if (!token) {
+            throw new Error('No authentication token found');
+        }
+
+        const response = await fetch(`${API_BASE_URL}/WeeklySchedule`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(weeklySchedule)
+        });
+
+        if (response.status === 401) {
+            throw new Error('Unauthorized - Please login again');
+        }
+
+        if (!response.ok) {
+            throw new Error('Failed to create weekly schedule');
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Create weekly schedule error:', error);
+        throw error;
+    }
+}
+
+async function updateWeeklySchedule(weekNumber, weeklySchedule) {
+    try {
+        const token = getAuthToken();
+        if (!token) {
+            throw new Error('No authentication token found');
+        }
+
+        const response = await fetch(`${API_BASE_URL}/WeeklySchedule/${weekNumber}`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(weeklySchedule)
+        });
+
+        if (response.status === 401) {
+            throw new Error('Unauthorized - Please login again');
+        }
+
+        if (!response.ok) {
+            throw new Error('Failed to update weekly schedule');
+        }
+
+        // Handle both JSON response and 204 No Content
+        if (response.status === 204) {
+            return true;
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Update weekly schedule error:', error);
+        throw error;
+    }
+}
+
+async function deleteWeeklySchedule(weekNumber) {
+    try {
+        const token = getAuthToken();
+        if (!token) {
+            throw new Error('No authentication token found');
+        }
+
+        const response = await fetch(`${API_BASE_URL}/WeeklySchedule/${weekNumber}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.status === 401) {
+            throw new Error('Unauthorized - Please login again');
+        }
+
+        if (!response.ok) {
+            throw new Error('Failed to delete weekly schedule');
+        }
+
+        return true;
+    } catch (error) {
+        console.error('Delete weekly schedule error:', error);
         throw error;
     }
 }

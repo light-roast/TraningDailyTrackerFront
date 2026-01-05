@@ -3,6 +3,7 @@
 
 let currentWeek = 1;
 let allExercises = [];
+let weeklySchedules = {}; // Cache for weekly schedules
 
 // DOM Elements
 const weeklyScheduleEl = document.getElementById('weeklySchedule');
@@ -20,10 +21,11 @@ async function init() {
     hideError();
 
     try {
-        // Fetch current week and exercises
+        // Fetch current week, exercises, and weekly schedules
         await Promise.all([
             loadWeeklyCycle(),
-            loadExercises()
+            loadExercises(),
+            loadWeeklySchedules()
         ]);
 
         // Render the schedule
@@ -64,6 +66,28 @@ async function loadExercises() {
 }
 
 /**
+ * Load weekly schedules from API
+ */
+async function loadWeeklySchedules() {
+    try {
+        const schedules = await getAllWeeklySchedules();
+        
+        // Convert array to object format for easy lookup
+        weeklySchedules = {};
+        schedules.forEach(schedule => {
+            weeklySchedules[schedule.weekNumber] = schedule.schedule;
+        });
+        
+        console.log('Loaded weekly schedules:', weeklySchedules);
+    } catch (error) {
+        console.error('Error loading weekly schedules:', error);
+        // Fallback to empty schedules if API fails
+        weeklySchedules = {};
+        throw error;
+    }
+}
+
+/**
  * Update week display
  */
 function updateWeekDisplay() {
@@ -76,8 +100,8 @@ function updateWeekDisplay() {
 function renderWeeklySchedule() {
     weeklyScheduleEl.innerHTML = '';
 
-    // Get the schedule for the current week
-    const weekSchedule = WEEKLY_SCHEDULES[currentWeek] || WEEKLY_SCHEDULES[1];
+    // Get the schedule for the current week from API data
+    const weekSchedule = weeklySchedules[currentWeek] || {};
 
     DAYS_OF_WEEK.forEach(day => {
         const dayCard = document.createElement('div');
