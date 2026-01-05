@@ -123,6 +123,67 @@
                 </table>
             </div>
         </div>
+
+        <!-- Weekly Schedules Section -->
+        <div class="card" style="margin-top: 2rem;">
+            <div class="card-header">
+                <h2>Weekly Training Schedules</h2>
+            </div>
+
+            <!-- Weekly Schedule Form -->
+            <div class="form-section">
+                <h3 id="scheduleFormTitle">Add New Weekly Schedule</h3>
+                <form id="weeklyScheduleForm">
+                    <input type="hidden" id="scheduleId" value="">
+                    <input type="hidden" id="scheduleWeekNumber" name="weekNumber" value="">
+                    
+                    <div class="form-group" id="weekNumberDisplay">
+                        <label>Week Number</label>
+                        <div style="padding: 0.75rem; background: var(--background); border: 1px solid var(--border); border-radius: 4px; font-weight: 500;">
+                            Week <span id="displayWeekNumber">-</span>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 1.5rem;">
+                        <h4 style="margin-bottom: 1rem;">Weekly Schedule</h4>
+                        <div id="scheduleInputs">
+                            <!-- Schedule inputs for each day will be generated here -->
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" id="cancelScheduleBtn" class="btn btn-secondary hidden">Cancel</button>
+                        <button type="submit" id="submitScheduleBtn" class="btn btn-success">
+                            <span id="submitScheduleBtnText">Add Schedule</span>
+                            <span id="submitScheduleBtnLoading" class="loading hidden"></span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Weekly Schedules Table -->
+            <div id="scheduleLoadingIndicator" class="hidden">
+                <div style="text-align: center; padding: 2rem;">
+                    <div class="loading loading-large"></div>
+                    <p style="margin-top: 1rem; color: var(--text-secondary);">Loading schedules...</p>
+                </div>
+            </div>
+
+            <div id="scheduleTableContainer" class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Week Number</th>
+                            <th>Schedule Summary</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="schedulesTableBody">
+                        <!-- Rows will be inserted here by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </main>
 
     <!-- Delete Confirmation Modal -->
@@ -137,6 +198,23 @@
                 <button onclick="confirmDelete()" class="btn btn-danger">
                     <span id="deleteBtnText">Delete</span>
                     <span id="deleteBtnLoading" class="loading hidden"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Schedule Confirmation Modal -->
+    <div id="deleteScheduleModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Confirm Delete</h3>
+            </div>
+            <p>Are you sure you want to delete this weekly schedule? This action cannot be undone.</p>
+            <div class="modal-actions">
+                <button onclick="closeDeleteScheduleModal()" class="btn btn-secondary">Cancel</button>
+                <button onclick="confirmDeleteSchedule()" class="btn btn-danger">
+                    <span id="deleteScheduleBtnText">Delete</span>
+                    <span id="deleteScheduleBtnLoading" class="loading hidden"></span>
                 </button>
             </div>
         </div>

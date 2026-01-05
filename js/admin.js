@@ -5,6 +5,11 @@ let exercises = [];
 let editingExerciseId = null;
 let deleteExerciseId = null;
 
+// Weekly Schedules management
+let weeklySchedules = [];
+let editingScheduleWeekNumber = null;
+let deleteScheduleWeekNumber = null;
+
 // DOM Elements
 const exerciseForm = document.getElementById('exerciseForm');
 const exerciseIdInput = document.getElementById('exerciseId');
@@ -26,6 +31,23 @@ const deleteModal = document.getElementById('deleteModal');
 const deleteBtnText = document.getElementById('deleteBtnText');
 const deleteBtnLoading = document.getElementById('deleteBtnLoading');
 
+// Weekly Schedule DOM Elements
+const weeklyScheduleForm = document.getElementById('weeklyScheduleForm');
+const scheduleIdInput = document.getElementById('scheduleId');
+const scheduleWeekNumberInput = document.getElementById('scheduleWeekNumber');
+const scheduleFormTitle = document.getElementById('scheduleFormTitle');
+const submitScheduleBtn = document.getElementById('submitScheduleBtn');
+const submitScheduleBtnText = document.getElementById('submitScheduleBtnText');
+const submitScheduleBtnLoading = document.getElementById('submitScheduleBtnLoading');
+const cancelScheduleBtn = document.getElementById('cancelScheduleBtn');
+const schedulesTableBody = document.getElementById('schedulesTableBody');
+const scheduleLoadingIndicatorEl = document.getElementById('scheduleLoadingIndicator');
+const scheduleTableContainer = document.getElementById('scheduleTableContainer');
+const deleteScheduleModal = document.getElementById('deleteScheduleModal');
+const deleteScheduleBtnText = document.getElementById('deleteScheduleBtnText');
+const deleteScheduleBtnLoading = document.getElementById('deleteScheduleBtnLoading');
+const scheduleInputsEl = document.getElementById('scheduleInputs');
+
 /**
  * Check authentication on page load
  */
@@ -38,7 +60,11 @@ function checkAuth() {
  */
 async function init() {
     checkAuth();
-    await loadExercises();
+    initializeScheduleInputs();
+    await Promise.all([
+        loadExercises(),
+        loadWeeklySchedules()
+    ]);
 }
 
 /**
@@ -321,6 +347,10 @@ function hideMessages() {
 exerciseForm.addEventListener('submit', handleFormSubmit);
 cancelBtn.addEventListener('click', resetForm);
 
+// Weekly Schedule Event listeners
+weeklyScheduleForm.addEventListener('submit', handleScheduleFormSubmit);
+cancelScheduleBtn.addEventListener('click', resetScheduleForm);
+
 // Close modal when clicking outside
 deleteModal.addEventListener('click', (e) => {
     if (e.target === deleteModal) {
@@ -328,5 +358,348 @@ deleteModal.addEventListener('click', (e) => {
     }
 });
 
+deleteScheduleModal.addEventListener('click', (e) => {
+    if (e.target === deleteScheduleModal) {
+        closeDeleteScheduleModal();
+    }
+});
+
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', init);
+
+// ========== WEEKLY SCHEDULE MANAGEMENT FUNCTIONS ==========
+
+/**
+ * Initialize schedule day inputs
+ */
+function initializeScheduleInputs() {
+    scheduleInputsEl.innerHTML = '';
+    
+    DAYS_OF_WEEK.forEach(day => {
+        const dayGroup = document.createElement('div');
+        dayGroup.className = 'form-group';
+        dayGroup.style.marginBottom = '1rem';
+        
+        const label = document.createElement('label');
+        label.textContent = day;
+        label.style.fontWeight = '500';
+        label.style.marginBottom = '0.5rem';
+        label.style.display = 'block';
+        
+        const checkboxContainer = document.createElement('div');
+        checkboxContainer.style.display = 'flex';
+        checkboxContainer.style.flexWrap = 'wrap';
+        checkboxContainer.style.gap = '1rem';
+        
+        Object.entries(MUSCLE_GROUPS).forEach(([id, name]) => {
+            const checkboxWrapper = document.createElement('label');
+            checkboxWrapper.style.display = 'flex';
+            checkboxWrapper.style.alignItems = 'center';
+            checkboxWrapper.style.cursor = 'pointer';
+            checkboxWrapper.style.userSelect = 'none';
+            
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.value = id;
+            checkbox.setAttribute('data-day', day);
+            checkbox.style.marginRight = '0.5rem';
+            
+            const labelText = document.createElement('span');
+            labelText.textContent = name;
+            
+            checkboxWrapper.appendChild(checkbox);
+            checkboxWrapper.appendChild(labelText);
+            checkboxContainer.appendChild(checkboxWrapper);
+        });
+        
+        dayGroup.appendChild(label);
+        dayGroup.appendChild(checkboxContainer);
+        scheduleInputsEl.appendChild(dayGroup);
+    });
+}
+
+/**
+ * Load all weekly schedules
+ */
+async function loadWeeklySchedules() {
+    showScheduleTableLoading();
+    hideMessages();
+
+    try {
+        weeklySchedules = await getAllWeeklySchedules();
+        renderSchedulesTable();
+        
+        // Set initial week number for new schedule
+        const maxWeek = weeklySchedules.length > 0 
+            ? Math.max(...weeklySchedules.map(s => s.weekNumber))
+            : 0;
+        const nextWeek = maxWeek + 1;
+        scheduleWeekNumberInput.value = nextWeek;
+        document.getElementById('displayWeekNumber').textContent = nextWeek;
+    } catch (error) {
+        if (error.message.includes('Unauthorized')) {
+            showError('Session expired. Please login again.');
+            setTimeout(() => {
+                logout();
+            }, 2000);
+        } else {
+            showError('Failed to load weekly schedules. Please try again.');
+        }
+        console.error('Load schedules error:', error);
+    } finally {
+        hideScheduleTableLoading();
+    }
+}
+
+/**
+ * Render schedules table
+ */
+function renderSchedulesTable() {
+    schedulesTableBody.innerHTML = '';
+
+    if (weeklySchedules.length === 0) {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td colspan="3" style="text-align: center; color: var(--text-secondary); padding: 2rem;">
+                No weekly schedules found. Add your first schedule above.
+            </td>
+        `;
+        schedulesTableBody.appendChild(row);
+        return;
+    }
+
+    // Sort by week number
+    const sortedSchedules = [...weeklySchedules].sort((a, b) => a.weekNumber - b.weekNumber);
+
+    sortedSchedules.forEach(schedule => {
+        const row = document.createElement('tr');
+        
+        // Create summary of schedule
+        const summary = Object.entries(schedule.schedule)
+            .map(([day, muscleIds]) => {
+                const muscles = muscleIds.map(id => MUSCLE_GROUPS[id]).join(', ');
+                return `${day}: ${muscles || 'Rest'}`;
+            })
+            .join(' | ');
+        
+        row.innerHTML = `
+            <td><strong>Week ${schedule.weekNumber}</strong></td>
+            <td style="font-size: 0.9rem;">${summary}</td>
+            <td>
+                <div class="action-buttons">
+                    <button onclick="editSchedule(${schedule.weekNumber})" class="btn btn-primary btn-small">
+                        Edit
+                    </button>
+                    <button onclick="openDeleteScheduleModal(${schedule.weekNumber})" class="btn btn-danger btn-small">
+                        Delete
+                    </button>
+                </div>
+            </td>
+        `;
+        schedulesTableBody.appendChild(row);
+    });
+}
+
+/**
+ * Handle schedule form submission
+ */
+async function handleScheduleFormSubmit(e) {
+    e.preventDefault();
+
+    const weekNumber = parseInt(scheduleWeekNumberInput.value);
+    
+    if (!weekNumber || weekNumber < 1) {
+        showError('Invalid week number');
+        return;
+    }
+
+    // Build schedule object from checkboxes
+    const schedule = {};
+    DAYS_OF_WEEK.forEach(day => {
+        const checkboxes = scheduleInputsEl.querySelectorAll(`input[type="checkbox"][data-day="${day}"]:checked`);
+        schedule[day] = Array.from(checkboxes).map(cb => parseInt(cb.value));
+    });
+
+    const scheduleData = {
+        weekNumber: weekNumber,
+        schedule: schedule
+    };
+
+    setScheduleFormLoading(true);
+    hideMessages();
+
+    try {
+        if (editingScheduleWeekNumber) {
+            await updateWeeklySchedule(editingScheduleWeekNumber, scheduleData);
+            showSuccess('Weekly schedule updated successfully!');
+        } else {
+            await createWeeklySchedule(scheduleData);
+            showSuccess('Weekly schedule created successfully!');
+        }
+
+        resetScheduleForm();
+        await loadWeeklySchedules();
+    } catch (error) {
+        if (error.message.includes('Unauthorized')) {
+            showError('Session expired. Please login again.');
+            setTimeout(() => {
+                logout();
+            }, 2000);
+        } else {
+            showError(editingScheduleWeekNumber ? 'Failed to update schedule' : 'Failed to create schedule');
+        }
+        console.error('Schedule form submit error:', error);
+    } finally {
+        setScheduleFormLoading(false);
+    }
+}
+
+/**
+ * Edit schedule
+ */
+function editSchedule(weekNumber) {
+    const schedule = weeklySchedules.find(s => s.weekNumber === weekNumber);
+    if (!schedule) return;
+
+    editingScheduleWeekNumber = weekNumber;
+    scheduleWeekNumberInput.value = weekNumber;
+    document.getElementById('displayWeekNumber').textContent = weekNumber;
+
+    // Clear all checkboxes first
+    const allCheckboxes = scheduleInputsEl.querySelectorAll('input[type="checkbox"]');
+    allCheckboxes.forEach(cb => cb.checked = false);
+
+    // Set checkboxes based on schedule data
+    Object.entries(schedule.schedule).forEach(([day, muscleIds]) => {
+        muscleIds.forEach(muscleId => {
+            const checkbox = scheduleInputsEl.querySelector(`input[type="checkbox"][data-day="${day}"][value="${muscleId}"]`);
+            if (checkbox) {
+                checkbox.checked = true;
+            }
+        });
+    });
+
+    scheduleFormTitle.textContent = 'Edit Weekly Schedule';
+    submitScheduleBtnText.textContent = 'Update Schedule';
+    cancelScheduleBtn.classList.remove('hidden');
+
+    // Scroll to form
+    weeklyScheduleForm.scrollIntoView({ behavior: 'smooth' });
+}
+
+/**
+ * Open delete schedule confirmation modal
+ */
+function openDeleteScheduleModal(weekNumber) {
+    deleteScheduleWeekNumber = weekNumber;
+    deleteScheduleModal.classList.remove('hidden');
+}
+
+/**
+ * Close delete schedule confirmation modal
+ */
+function closeDeleteScheduleModal() {
+    deleteScheduleWeekNumber = null;
+    deleteScheduleModal.classList.add('hidden');
+}
+
+/**
+ * Confirm delete schedule
+ */
+async function confirmDeleteSchedule() {
+    if (!deleteScheduleWeekNumber) return;
+
+    setDeleteScheduleLoading(true);
+
+    try {
+        await deleteWeeklySchedule(deleteScheduleWeekNumber);
+        showSuccess('Weekly schedule deleted successfully!');
+        closeDeleteScheduleModal();
+        await loadWeeklySchedules();
+    } catch (error) {
+        if (error.message.includes('Unauthorized')) {
+            showError('Session expired. Please login again.');
+            setTimeout(() => {
+                logout();
+            }, 2000);
+        } else {
+            showError('Failed to delete schedule');
+        }
+        console.error('Delete schedule error:', error);
+    } finally {
+        setDeleteScheduleLoading(false);
+    }
+}
+
+/**
+ * Reset schedule form to add mode
+ */
+function resetScheduleForm() {
+    editingScheduleWeekNumber = null;
+    weeklyScheduleForm.reset();
+    
+    // Calculate next week number
+    const maxWeek = weeklySchedules.length > 0 
+        ? Math.max(...weeklySchedules.map(s => s.weekNumber))
+        : 0;
+    const nextWeek = maxWeek + 1;
+    
+    scheduleWeekNumberInput.value = nextWeek;
+    document.getElementById('displayWeekNumber').textContent = nextWeek;
+    
+    // Clear all checkboxes
+    const allCheckboxes = scheduleInputsEl.querySelectorAll('input[type="checkbox"]');
+    allCheckboxes.forEach(cb => cb.checked = false);
+    
+    scheduleFormTitle.textContent = 'Add New Weekly Schedule';
+    submitScheduleBtnText.textContent = 'Add Schedule';
+    cancelScheduleBtn.classList.add('hidden');
+}
+
+/**
+ * Set schedule form loading state
+ */
+function setScheduleFormLoading(isLoading) {
+    if (isLoading) {
+        submitScheduleBtn.disabled = true;
+        submitScheduleBtnText.classList.add('hidden');
+        submitScheduleBtnLoading.classList.remove('hidden');
+    } else {
+        submitScheduleBtn.disabled = false;
+        submitScheduleBtnText.classList.remove('hidden');
+        submitScheduleBtnLoading.classList.add('hidden');
+    }
+}
+
+/**
+ * Set delete schedule loading state
+ */
+function setDeleteScheduleLoading(isLoading) {
+    const deleteBtn = deleteScheduleModal.querySelector('.btn-danger');
+    if (isLoading) {
+        deleteBtn.disabled = true;
+        deleteScheduleBtnText.classList.add('hidden');
+        deleteScheduleBtnLoading.classList.remove('hidden');
+    } else {
+        deleteBtn.disabled = false;
+        deleteScheduleBtnText.classList.remove('hidden');
+        deleteScheduleBtnLoading.classList.add('hidden');
+    }
+}
+
+/**
+ * Show schedule table loading
+ */
+function showScheduleTableLoading() {
+    scheduleLoadingIndicatorEl.classList.remove('hidden');
+    scheduleTableContainer.style.display = 'none';
+}
+
+/**
+ * Hide schedule table loading
+ */
+function hideScheduleTableLoading() {
+    scheduleLoadingIndicatorEl.classList.add('hidden');
+    scheduleTableContainer.style.display = 'block';
+}
+
