@@ -101,7 +101,7 @@ function renderExercisesTable() {
     if (exercises.length === 0) {
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td colspan="6" style="text-align: center; color: var(--text-secondary); padding: 2rem;">
+            <td colspan="6" class="table-empty">
                 No exercises found. Add your first exercise above.
             </td>
         `;
@@ -377,32 +377,22 @@ function initializeScheduleInputs() {
     
     DAYS_OF_WEEK.forEach(day => {
         const dayGroup = document.createElement('div');
-        dayGroup.className = 'form-group';
-        dayGroup.style.marginBottom = '1rem';
-        
+        dayGroup.className = 'schedule-day';
+
         const label = document.createElement('label');
         label.textContent = day;
-        label.style.fontWeight = '500';
-        label.style.marginBottom = '0.5rem';
-        label.style.display = 'block';
-        
+
         const checkboxContainer = document.createElement('div');
-        checkboxContainer.style.display = 'flex';
-        checkboxContainer.style.flexWrap = 'wrap';
-        checkboxContainer.style.gap = '1rem';
-        
+        checkboxContainer.className = 'chip-group';
+
         Object.entries(MUSCLE_GROUPS).forEach(([id, name]) => {
             const checkboxWrapper = document.createElement('label');
-            checkboxWrapper.style.display = 'flex';
-            checkboxWrapper.style.alignItems = 'center';
-            checkboxWrapper.style.cursor = 'pointer';
-            checkboxWrapper.style.userSelect = 'none';
-            
+            checkboxWrapper.className = 'chip';
+
             const checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
             checkbox.value = id;
             checkbox.setAttribute('data-day', day);
-            checkbox.style.marginRight = '0.5rem';
             
             const labelText = document.createElement('span');
             labelText.textContent = name;
@@ -460,7 +450,7 @@ function renderSchedulesTable() {
     if (weeklySchedules.length === 0) {
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td colspan="3" style="text-align: center; color: var(--text-secondary); padding: 2rem;">
+            <td colspan="3" class="table-empty">
                 No weekly schedules found. Add your first schedule above.
             </td>
         `;
@@ -484,7 +474,7 @@ function renderSchedulesTable() {
         
         row.innerHTML = `
             <td><strong>Week ${schedule.weekNumber}</strong></td>
-            <td style="font-size: 0.9rem;">${summary}</td>
+            <td class="table-summary">${summary}</td>
             <td>
                 <div class="action-buttons">
                     <button onclick="editSchedule(${schedule.weekNumber})" class="btn btn-primary btn-small">
