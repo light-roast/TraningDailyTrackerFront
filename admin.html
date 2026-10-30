@@ -3,7 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="dark">
+    <meta name="theme-color" content="#0b0d14">
     <title>Admin Dashboard - Training Daily Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
@@ -11,7 +16,7 @@
     <header>
         <div class="container">
             <div class="admin-header">
-                <h1>🏋️ Admin Dashboard</h1>
+                <h1><span class="emoji">🏋️</span> Admin Dashboard</h1>
                 <button onclick="logout()" class="btn btn-danger">Logout</button>
             </div>
         </div>
@@ -99,9 +104,9 @@
             </div>
 
             <div id="loadingIndicator" class="hidden">
-                <div style="text-align: center; padding: 2rem;">
+                <div class="loading-block">
                     <div class="loading loading-large"></div>
-                    <p style="margin-top: 1rem; color: var(--text-secondary);">Loading exercises...</p>
+                    <p>Loading exercises...</p>
                 </div>
             </div>
 
@@ -125,7 +130,7 @@
         </div>
 
         <!-- Weekly Schedules Section -->
-        <div class="card" style="margin-top: 2rem;">
+        <div class="card">
             <div class="card-header">
                 <h2>Weekly Training Schedules</h2>
             </div>
@@ -139,13 +144,13 @@
                     
                     <div class="form-group" id="weekNumberDisplay">
                         <label>Week Number</label>
-                        <div style="padding: 0.75rem; background: var(--background); border: 1px solid var(--border); border-radius: 4px; font-weight: 500;">
-                            Week <span id="displayWeekNumber">-</span>
+                        <div class="form-static">
+                            Week&nbsp;<span id="displayWeekNumber">-</span>
                         </div>
                     </div>
 
-                    <div style="margin-top: 1.5rem;">
-                        <h4 style="margin-bottom: 1rem;">Weekly Schedule</h4>
+                    <div class="form-subsection">
+                        <h4>Weekly Schedule</h4>
                         <div id="scheduleInputs">
                             <!-- Schedule inputs for each day will be generated here -->
                         </div>
@@ -163,9 +168,9 @@
 
             <!-- Weekly Schedules Table -->
             <div id="scheduleLoadingIndicator" class="hidden">
-                <div style="text-align: center; padding: 2rem;">
+                <div class="loading-block">
                     <div class="loading loading-large"></div>
-                    <p style="margin-top: 1rem; color: var(--text-secondary);">Loading schedules...</p>
+                    <p>Loading schedules...</p>
                 </div>
             </div>
 

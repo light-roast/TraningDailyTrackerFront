@@ -3,14 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="dark">
+    <meta name="theme-color" content="#0b0d14">
     <title>Login - Training Daily Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
     <div class="login-container">
         <div class="login-card">
             <div class="login-header">
-                <h1>🏋️ Training Tracker</h1>
+                <h1><span class="emoji">🏋️</span> Training Tracker</h1>
                 <p>Sign in to manage exercises</p>
             </div>
 
@@ -43,7 +48,7 @@
                     >
                 </div>
 
-                <button type="submit" class="btn btn-primary" id="loginBtn" style="width: 100%;">
+                <button type="submit" class="btn btn-primary btn-block" id="loginBtn">
                     <span id="loginBtnText">Sign In</span>
                     <span id="loginBtnLoading" class="loading hidden"></span>
                 </button>
